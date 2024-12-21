@@ -1,7 +1,8 @@
 import { db } from "~/server/db";
+import type { User } from "~/server/db/types";
 
 export default async function HomePage() {
-  const users = await db.query.users.findMany();
+  const users: User[] = await db.query.users.findMany();
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
       <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
@@ -9,7 +10,7 @@ export default async function HomePage() {
           Offlog
         </h1>
         <div>
-          {users.map((user) => (
+          {users.map((user: User) => (
             <div key={user.id}>
               {user.username} {user.email}
             </div>

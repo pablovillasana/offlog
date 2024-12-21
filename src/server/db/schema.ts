@@ -2,6 +2,7 @@
 // https://orm.drizzle.team/docs/sql-schema-declaration
 
 import { relations, sql } from "drizzle-orm";
+import type { Relations } from "drizzle-orm";
 import {
   index,
   integer,
@@ -19,11 +20,7 @@ import {
 export const createTable = pgTableCreator((name) => `offlog_${name}`);
 
 // Declare tables first to avoid circular reference
-export let vehicles: ReturnType<typeof createTable>;
-export let users: ReturnType<typeof createTable>;
-
-// Then define the tables
-vehicles = createTable(
+export const vehicles: ReturnType<typeof createTable> = createTable(
   "vehicle",
   {
     id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
@@ -31,7 +28,7 @@ vehicles = createTable(
     brand: varchar("brand", { length: 256 }),
     model: varchar("model", { length: 256 }),
     year: integer("year"),
-    user_id: integer("user_id").references(() => users.id),
+    user_id: integer("user_id"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -44,14 +41,14 @@ vehicles = createTable(
   })
 );
 
-users = createTable(
+export const users: ReturnType<typeof createTable> = createTable(
   "user",
   {
     id: integer("id").primaryKey().generatedByDefaultAsIdentity(),
     username: varchar("username", { length: 256 }),
     email: varchar("email", { length: 256 }),
     password: varchar("password", { length: 256 }),
-    vehicles_id: integer("vehicles_id").references(() => vehicles.id),
+    vehiclesId: integer("vehicles_id"),
     createdAt: timestamp("created_at", { withTimezone: true })
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
@@ -64,7 +61,7 @@ users = createTable(
   })
 );
 
-export const usersRelations = relations(users, ({ many }) => ({
+export const usersRelations: Relations<typeof users> = relations(users, ({ many }) => ({
   vehicles: many(vehicles),
 }));
 
