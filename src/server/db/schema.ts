@@ -33,12 +33,12 @@ export const vehicles: ReturnType<typeof createTable> = createTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date()
+      () => new Date(),
     ),
   },
   (example) => ({
     nameIndex: index("name_idx").on(example.name),
-  })
+  }),
 );
 
 export const users: ReturnType<typeof createTable> = createTable(
@@ -53,17 +53,20 @@ export const users: ReturnType<typeof createTable> = createTable(
       .default(sql`CURRENT_TIMESTAMP`)
       .notNull(),
     updatedAt: timestamp("updated_at", { withTimezone: true }).$onUpdate(
-      () => new Date()
+      () => new Date(),
     ),
   },
   (example) => ({
     usernameIndex: index("username_idx").on(example.username),
-  })
+  }),
 );
 
-export const usersRelations: Relations<typeof users> = relations(users, ({ many }) => ({
-  vehicles: many(vehicles),
-}));
+export const usersRelations: Relations<typeof users> = relations(
+  users,
+  ({ many }) => ({
+    vehicles: many(vehicles),
+  }),
+);
 
 export const vehiclesRelations = relations(vehicles, ({ one }) => ({
   user: one(users, {
