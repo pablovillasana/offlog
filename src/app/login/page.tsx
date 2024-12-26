@@ -2,7 +2,7 @@ import { LoginForm } from "~/components/login-form";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Offlog Login",
+  title: "Offlog | Login",
   description: "Offlog Login page",
 };
 
