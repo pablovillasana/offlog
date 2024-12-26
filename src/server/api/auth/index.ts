@@ -1,8 +1,7 @@
 "use server";
 
 import { AuthError } from "next-auth";
-
-import { signIn } from "~/auth";
+import { signIn, signOut } from "~/auth";
 
 /**
  * Handles the login form submission on the server side.
@@ -25,4 +24,11 @@ export async function userLogin(
     }
     throw error;
   }
+}
+
+/**
+ * Handles the logout process on the server side.
+ */
+export async function userLogout() {
+  await signOut({ redirectTo: "/" });
 }

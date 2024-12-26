@@ -1,8 +1,9 @@
 import NextAuth, { type NextAuthConfig } from "next-auth";
+import { NextResponse } from "next/server";
 import Credentials from "next-auth/providers/credentials";
+
 import { getUserIfSatisfies } from "~/server/api/users";
 import type { userCredentials } from "~/utils/types";
-
 export const { handlers, signIn, signOut, auth } = NextAuth({
   debug: true,
   providers: [
@@ -42,11 +43,11 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         return isLoggedIn;
       } else if (isLoggedIn) {
         // Redirect authenticated users to the dashboard
-        return Response.redirect(new URL("/", nextUrl));
+        return NextResponse.redirect(new URL("/", nextUrl));
       }
 
       // Allow unauthenticated users to access other pages
-      return true;
+      return NextResponse.next();
     },
   },
   pages: {

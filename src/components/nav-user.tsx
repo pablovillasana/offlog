@@ -1,5 +1,7 @@
 "use client";
 
+import { userLogout } from "~/server/api/auth";
+
 import {
   BadgeCheck,
   Bell,
@@ -98,7 +100,7 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem onClick={userLogout}>
               <LogOut />
               Log out
             </DropdownMenuItem>
