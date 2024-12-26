@@ -1,7 +1,6 @@
 "use client";
 
 import Image from "next/image";
-import { AuthError } from "next-auth";
 
 import { cn } from "~/lib/utils";
 import { userLogin } from "~/server/api/auth";
@@ -9,38 +8,39 @@ import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { useAlert } from "~/components/providers/alert-provider";
 import { useRouter } from "next/navigation";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+
 export function LoginForm({
   className,
   ...props
 }: React.ComponentPropsWithoutRef<"div">) {
   const { showAlert } = useAlert();
   const router = useRouter();
-  
+
   /**
    * Handles the login form submission.
    * @param formData - The form data to be submitted.
    */
   const handleSubmit = async (formData: FormData) => {
     try {
-      await userLogin(formData);
-      router.push("/"); 
-    } catch (error) {
-      console.log(error);
-      if (error instanceof AuthError) {
-        if (error.type === "CredentialsSignin") {
-          showAlert({
-            title: "Invalid credentials!",
-            description:
-              "Please check your username and password and try again.",
-            type: "destructive",
-          });
-        }
+      const result = await userLogin(formData);
+      if (result.error === "CredentialsSignin") {
+        showAlert({
+          title: "Invalid credentials!",
+          description: "Please check your username and password and try again.",
+          type: "destructive",
+        });
+      } else {
+        router.push("/");
       }
-      showAlert({
-        title: "Error",
-        description: "An error occurred while logging in.",
-        type: "destructive",
-      });
+    } catch (error) {
+      if (!isRedirectError(error)) {
+        showAlert({
+          title: "Something went wrong!",
+          description: "Please try again later.",
+          type: "destructive",
+        });
+      }
     }
   };
 

@@ -13,7 +13,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       },
       authorize: async (credentials) => {
         try {
-          return await getUserIfSatisfies(credentials as userCredentials);
+          const dbUser = await getUserIfSatisfies(
+            credentials as userCredentials,
+          );
+          if (!dbUser || typeof dbUser.id !== "number") {
+            return null;
+          }
+          return {
+            id: dbUser.id.toString(),
+            email: dbUser.email ?? "",
+            name: dbUser.username ?? "",
+            ...dbUser,
+          };
         } catch (error) {
           console.log("Error authorizing user", error);
           return null;
