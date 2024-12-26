@@ -1,36 +1,44 @@
-import NextAuth from "next-auth";
+import NextAuth, { type NextAuthConfig } from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import { getUserIfSatisfies } from "~/server/adapter";
+import { getUserIfSatisfies } from "~/server/api/users";
 import type { userCredentials } from "~/utils/types";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
+  debug: true,
   providers: [
     Credentials({
-      // You can specify which fields should be submitted, by adding keys to the `credentials` object.
-      // e.g. domain, username, password, 2FA token, etc.
       credentials: {
         email: {},
         password: {},
       },
       authorize: async (credentials) => {
         try {
-          let user = null;
-
-          // logic to verify if the user exists and if the password is correct
-          user = await getUserIfSatisfies(credentials as userCredentials);
-
-          // return user object with their profile data
-          return user;
+          return await getUserIfSatisfies(credentials as userCredentials);
         } catch (error) {
-          console.error("Error authorizing user", error);
+          console.log("Error authorizing user", error);
           return null;
         }
       },
     }),
   ],
   callbacks: {
-    authorized: async ({ auth }) => {
-      return !!auth;
+    authorized: async ({ request: { nextUrl }, auth: midAuth }) => {
+      const isLoggedIn = Boolean(midAuth?.user);
+      const isOnDashboard = nextUrl.pathname === "/";
+
+      if (isOnDashboard) {
+        // Redirect unauthenticated users to the login page
+        return isLoggedIn;
+      } else if (isLoggedIn) {
+        // Redirect authenticated users to the dashboard
+        return Response.redirect(new URL("/", nextUrl));
+      }
+
+      // Allow unauthenticated users to access other pages
+      return true;
     },
   },
-});
+  pages: {
+    signIn: "/login",
+  },
+} satisfies NextAuthConfig);

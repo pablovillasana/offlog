@@ -1,34 +1,54 @@
-import { signIn } from "~/auth";
-import { db } from "~/server/db";
-import { AuthError } from "next-auth";
-import type { User, Vehicle } from "~/server/db/types";
+import { AppSidebar } from "~/components/app-sidebar";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "~/components/ui/breadcrumb";
+import { Separator } from "~/components/ui/separator";
+import {
+  SidebarInset,
+  SidebarProvider,
+  SidebarTrigger,
+} from "~/components/ui/sidebar";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const users: User[] = await db.query.users.findMany();
-  const vehicles: Vehicle[] = await db.query.vehicles.findMany({
-    where: (vehicles, { eq }) => eq(vehicles.user_id, 1),
-  });
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c] text-white">
-      <div className="container flex flex-col items-center justify-center gap-12 px-4 py-16">
-        <h1 className="text-5xl font-extrabold tracking-tight text-white sm:text-[5rem]">
-          Offlog
-        </h1>
-        <div>
-          {users.map((user: User) => (
-            <div key={user.id}>
-              {user.username} {user.email}
-              {vehicles.map((vehicle) => (
-                <div key={vehicle.id}>
-                  {vehicle.name} {vehicle.brand} {vehicle.model}
-                </div>
-              ))}
-            </div>
-          ))}
+    <SidebarProvider>
+      <AppSidebar />
+      <SidebarInset>
+        <header className="flex h-16 shrink-0 items-center gap-2">
+          <div className="flex items-center gap-2 px-4">
+            <SidebarTrigger className="-ml-1" />
+            <Separator orientation="vertical" className="mr-2 h-4" />
+            <Breadcrumb>
+              <BreadcrumbList>
+                <BreadcrumbItem className="hidden md:block">
+                  <BreadcrumbLink href="#">
+                    Building Your Application
+                  </BreadcrumbLink>
+                </BreadcrumbItem>
+                <BreadcrumbSeparator className="hidden md:block" />
+                <BreadcrumbItem>
+                  <BreadcrumbPage>Data Fetching</BreadcrumbPage>
+                </BreadcrumbItem>
+              </BreadcrumbList>
+            </Breadcrumb>
+          </div>
+        </header>
+        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+          <div className="grid auto-rows-min gap-4 md:grid-cols-3">
+            <div className="aspect-video rounded-xl bg-zinc-100/50 dark:bg-zinc-800/50" />
+            <div className="aspect-video rounded-xl bg-zinc-100/50 dark:bg-zinc-800/50" />
+            <div className="aspect-video rounded-xl bg-zinc-100/50 dark:bg-zinc-800/50" />
+          </div>
+          <div className="min-h-[100vh] flex-1 rounded-xl bg-zinc-100/50 dark:bg-zinc-800/50 md:min-h-min" />
         </div>
-      </div>
-    </main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
