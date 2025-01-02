@@ -28,36 +28,26 @@ const data = {
   navMain: [
     {
       title: "Maintenance",
-      url: "#",
+      url: "/maintenance",
       icon: CalendarClock,
       isActive: true,
-      items: [
-        {
-          title: "Enduro",
-          url: "#",
-        },
-        {
-          title: "Motocross",
-          url: "#",
-        },
-      ],
     },
     {
       title: "Vehicles",
-      url: "#",
+      url: "/vehicles",
       icon: Bike,
       items: [
         {
           title: "Genesis",
-          url: "#",
+          url: "/vehicles/genesis",
         },
         {
           title: "Explorer",
-          url: "#",
+          url: "/vehicles/explorer",
         },
         {
           title: "Quantum",
-          url: "#",
+          url: "/vehicles/quantum",
         },
       ],
     },
@@ -65,35 +55,34 @@ const data = {
   projects: [
     {
       name: "Design Engineering",
-      url: "#",
+      url: "/projects/design",
       icon: Frame,
     },
     {
       name: "Sales & Marketing",
-      url: "#",
+      url: "/projects/sales",
       icon: PieChart,
     },
     {
       name: "Travel",
-      url: "#",
+      url: "/projects/travel",
       icon: Map,
     },
   ],
 };
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-  const { data: session } = useSession();
+  const { data: session, status } = useSession();
   const user = session?.user;
 
-  if (!user) {
-    return null;
-  }
-
-  const userData = {
-    name: user.name ?? "User",
-    email: user.email ?? "",
-    avatar: "/avatars/default.jpg", // You might want to add a default avatar image
-  };
+  const userData =
+    status === "authenticated" && user
+      ? {
+          name: user.name ?? "User",
+          email: user.email ?? "",
+          avatar: "/avatars/shadcn.jpg",
+        }
+      : null;
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -118,9 +107,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain items={data.navMain} />
         <NavProjects projects={data.projects} />
       </SidebarContent>
-      <SidebarFooter>
-        <NavUser user={userData} />
-      </SidebarFooter>
+      <SidebarFooter>{userData && <NavUser user={userData} />}</SidebarFooter>
     </Sidebar>
   );
 }

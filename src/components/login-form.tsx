@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
+import { useSearchParams } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 import { cn } from "~/lib/utils";
-import { userLogin } from "~/server/api/auth";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
 import { useAlert } from "~/components/providers/alert-provider";
@@ -16,6 +17,8 @@ export function LoginForm({
 }: React.ComponentPropsWithoutRef<"div">) {
   const { showAlert } = useAlert();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl");
 
   /**
    * Handles the login form submission.
@@ -23,15 +26,38 @@ export function LoginForm({
    */
   const handleSubmit = async (formData: FormData) => {
     try {
-      const result = await userLogin(formData);
-      if (result.error === "CredentialsSignin") {
+      const emailValue = formData.get("email");
+      const passwordValue = formData.get("password");
+
+      const email = typeof emailValue === "string" ? emailValue : undefined;
+      const password =
+        typeof passwordValue === "string" ? passwordValue : undefined;
+
+      if (!email || !password) {
+        showAlert({
+          title: "Missing credentials!",
+          description: "Please provide both email and password.",
+          type: "destructive",
+        });
+        return;
+      }
+
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error === "CredentialsSignin") {
         showAlert({
           title: "Invalid credentials!",
           description: "Please check your username and password and try again.",
           type: "destructive",
         });
-      } else {
-        router.push("/");
+      } else if (!result?.error) {
+        // Use router.push for client-side navigation
+        router.push(callbackUrl ?? "/");
+        router.refresh();
       }
     } catch (error) {
       if (!isRedirectError(error)) {
