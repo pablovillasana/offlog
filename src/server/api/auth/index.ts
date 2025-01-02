@@ -12,7 +12,12 @@ export async function userLogin(
   formData: FormData,
 ): Promise<{ error: AuthError } | { error: "CredentialsSignin" }> {
   try {
-    return await signIn("credentials", formData);
+    const callbackUrl = formData.get("callbackUrl")?.toString() ?? "/";
+    return await signIn("credentials", {
+      ...Object.fromEntries(formData),
+      redirect: true,
+      redirectTo: callbackUrl,
+    });
   } catch (error) {
     if (error instanceof AuthError) {
       switch (error.type) {

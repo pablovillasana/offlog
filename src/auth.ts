@@ -4,6 +4,7 @@ import Credentials from "next-auth/providers/credentials";
 
 import { getUserIfSatisfies } from "~/server/api/users";
 import type { userCredentials } from "~/utils/types";
+
 export const { handlers, signIn, signOut, auth } = NextAuth({
   debug: true,
   providers: [
@@ -36,18 +37,32 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   callbacks: {
     authorized: async ({ request: { nextUrl }, auth: midAuth }) => {
       const isLoggedIn = Boolean(midAuth?.user);
-      const isOnDashboard = nextUrl.pathname === "/";
+      const isOnLoginPage = nextUrl.pathname === "/login";
+      const isOnPublicRoute = ["/login"].includes(nextUrl.pathname);
 
-      if (isOnDashboard) {
-        // Redirect unauthenticated users to the login page
-        return isLoggedIn;
-      } else if (isLoggedIn) {
-        // Redirect authenticated users to the dashboard
-        return NextResponse.redirect(new URL("/", nextUrl));
+      // Allow access to public routes
+      if (isOnPublicRoute) {
+        // If user is logged in and tries to access login page, redirect to dashboard
+        if (isLoggedIn && isOnLoginPage) {
+          return NextResponse.redirect(new URL("/", nextUrl));
+        }
+        return true;
       }
 
-      // Allow unauthenticated users to access other pages
-      return NextResponse.next();
+      // Protect all other routes
+      if (!isLoggedIn) {
+        let callbackUrl = nextUrl.pathname;
+        if (nextUrl.search) {
+          callbackUrl += nextUrl.search;
+        }
+
+        const encodedCallbackUrl = encodeURIComponent(callbackUrl);
+        return NextResponse.redirect(
+          new URL(`/login?callbackUrl=${encodedCallbackUrl}`, nextUrl),
+        );
+      }
+
+      return true;
     },
   },
   pages: {
