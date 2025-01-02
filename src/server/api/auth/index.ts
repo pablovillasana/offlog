@@ -12,7 +12,9 @@ export async function userLogin(
   formData: FormData,
 ): Promise<{ error: AuthError } | { error: "CredentialsSignin" }> {
   try {
-    const callbackUrl = formData.get("callbackUrl")?.toString() ?? "/";
+    const callbackUrlValue = formData.get("callbackUrl");
+    const callbackUrl = typeof callbackUrlValue === "string" ? callbackUrlValue : "/";
+    
     return await signIn("credentials", {
       ...Object.fromEntries(formData),
       redirect: true,
