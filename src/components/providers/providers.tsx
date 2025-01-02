@@ -16,4 +16,4 @@ export function Providers({ children, session }: ProvidersProps) {
       <AlertProvider>{children}</AlertProvider>
     </SessionProvider>
   );
-} 
+}
