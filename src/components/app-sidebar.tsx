@@ -36,20 +36,6 @@ const data = {
       title: "Vehicles",
       url: "/vehicles",
       icon: Bike,
-      items: [
-        {
-          title: "Genesis",
-          url: "/vehicles/genesis",
-        },
-        {
-          title: "Explorer",
-          url: "/vehicles/explorer",
-        },
-        {
-          title: "Quantum",
-          url: "/vehicles/quantum",
-        },
-      ],
     },
   ],
   projects: [
@@ -96,7 +82,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
                   <span className="truncate font-semibold">Offlog</span>
-                  <span className="truncate text-xs">Offroad Logbook</span>
+                  <span className="truncate text-xs">
+                    Maintain the Adventure
+                  </span>
                 </div>
               </a>
             </SidebarMenuButton>
