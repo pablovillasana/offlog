@@ -4,7 +4,7 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { LoaderCircle } from "lucide-react";
-import { useState } from "react";
+import { useState, FormEvent } from "react";
 
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
@@ -25,11 +25,15 @@ export function LoginForm({
 
   /**
    * Handles the login form submission.
-   * @param formData - The form data to be submitted.
+   * @param event - The form submission event.
    */
-  const handleSubmit = async (formData: FormData) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
     try {
       setIsLoading(true);
+
+      const formData = new FormData(event.currentTarget);
       const emailValue = formData.get("email");
       const passwordValue = formData.get("password");
 
@@ -47,7 +51,6 @@ export function LoginForm({
         return;
       }
 
-      
       const result = await signIn("credentials", {
         email,
         password,
@@ -80,7 +83,7 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <form action={handleSubmit}>
+      <form onSubmit={handleSubmit}>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">
             <a
