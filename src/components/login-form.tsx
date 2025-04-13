@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { LoaderCircle } from "lucide-react";
+import { useState } from "react";
 
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
@@ -19,6 +21,7 @@ export function LoginForm({
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl");
+  const [isLoading, setIsLoading] = useState(false);
 
   /**
    * Handles the login form submission.
@@ -26,6 +29,7 @@ export function LoginForm({
    */
   const handleSubmit = async (formData: FormData) => {
     try {
+      setIsLoading(true);
       const emailValue = formData.get("email");
       const passwordValue = formData.get("password");
 
@@ -39,9 +43,11 @@ export function LoginForm({
           description: "Please provide both email and password.",
           type: "destructive",
         });
+        setIsLoading(false);
         return;
       }
 
+      
       const result = await signIn("credentials", {
         email,
         password,
@@ -54,12 +60,14 @@ export function LoginForm({
           description: "Please check your username and password and try again.",
           type: "destructive",
         });
+        setIsLoading(false);
       } else if (!result?.error) {
         // Use router.push for client-side navigation
         router.push(callbackUrl ?? "/");
         router.refresh();
       }
     } catch (error) {
+      setIsLoading(false);
       if (!isRedirectError(error)) {
         showAlert({
           title: "Something went wrong!",
@@ -112,8 +120,12 @@ export function LoginForm({
               placeholder="Password"
               required
             />
-            <Button type="submit" className="w-full">
-              Access
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                "Access"
+              )}
             </Button>
           </div>
         </div>
