@@ -22,7 +22,7 @@ async function main() {
   try {
     console.log("Reading bikes data from CSV...");
 
-    const records = await parseCSV(); 
+    const records = await parseCSV();
 
     console.log("Seeding bikes...");
     console.log(records);
