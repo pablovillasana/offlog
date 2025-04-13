@@ -9,6 +9,7 @@ import {
   pgTableCreator,
   timestamp,
   varchar,
+  serial,
 } from "drizzle-orm/pg-core";
 
 /**
@@ -74,3 +75,19 @@ export const vehiclesRelations = relations(vehicles, ({ one }) => ({
     references: [users.id],
   }),
 }));
+
+export const bikes: ReturnType<typeof createTable> = createTable("bikes", {
+  id: serial("id").primaryKey(),
+  year: integer("year").notNull(),
+  brand: varchar("brand", { length: 50 }).notNull(),
+  model: varchar("model", { length: 100 }).notNull(),
+  category: varchar("category", { length: 20 }).notNull(),
+  engineCc: integer("engine_cc"),
+  engineSize: varchar("engine_size", { length: 10 }),
+  strokeType: varchar("stroke_type", { length: 10 }),
+  startType: varchar("start_type", { length: 20 }),
+  fuelSystem: varchar("fuel_system", { length: 30 }),
+  productionStatus: varchar("production_status", { length: 20 }),
+  marketRegions: varchar("market_regions", { length: 100 }),
+  createdAt: timestamp("created_at").defaultNow(),
+});
