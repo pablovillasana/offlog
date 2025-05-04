@@ -7,6 +7,7 @@ import {
   index,
   integer,
   pgTableCreator,
+  text,
   timestamp,
   varchar,
   serial,
@@ -91,3 +92,21 @@ export const bikes: ReturnType<typeof createTable> = createTable("bikes", {
   marketRegions: varchar("market_regions", { length: 100 }),
   createdAt: timestamp("created_at").defaultNow(),
 });
+
+export const maintenanceRecords: ReturnType<typeof createTable> = createTable(
+  "maintenance_records",
+  {
+    id: serial("id").primaryKey(),
+    bikeId: integer("bike_id").references(bikes.id),
+    userId: integer("user_id").references(users.id),
+    maintenanceType: varchar("maintenance_type", { length: 20 }),
+    maintenanceDate: timestamp("maintenance_date").defaultNow(),
+    maintenanceCost: integer("maintenance_cost"),
+    maintenanceHours: integer("maintenance_hours"),
+    maintenanceDescription: text("maintenance_description"),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at")
+      .defaultNow()
+      .$onUpdate(() => new Date()),
+  },
+);

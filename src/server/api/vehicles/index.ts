@@ -66,3 +66,22 @@ export async function deleteVehicle(vehicleId: string) {
     .where(eq(vehicles.id, vehicleId))
     .returning();
 }
+
+/**
+ * Retrieves all vehicles for a specific user
+ * @param userId - The ID of the user
+ * @returns Promise containing all vehicles for the user
+ */
+export async function getVehiclesByUserId(userId: string) {
+  return await db.query.vehicles.findMany({
+    where: eq(vehicles.userId, userId),
+  });
+}
+
+/**
+ * Retrieves all vehicles
+ * @returns Promise containing all vehicles
+ */
+export async function getAllVehicles() {
+  return await db.query.vehicles.findMany();
+}
