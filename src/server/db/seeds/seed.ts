@@ -4,6 +4,8 @@ import { createReadStream } from "fs";
 import path, { join } from "path";
 import { parse } from "fast-csv";
 import { fileURLToPath } from "url";
+import chalk from "chalk";
+import ora from "ora";
 
 type Bike = {
   year: string;
@@ -20,25 +22,61 @@ type Bike = {
 
 async function main() {
   try {
-    console.log("Reading bikes data from CSV...");
+    // Clear the terminal
+    console.clear();
+
+    // Show header
+    console.log(chalk.bold.blue("\n Offlog Bike Seeder  \n"));
+
+    // Start parsing spinner
+    const parsingSpinner = ora({
+      text: chalk.yellow("Reading bikes data from CSV..."),
+      color: "yellow",
+    }).start();
 
     const records = await parseCSV();
 
-    console.log("Seeding bikes...");
-    console.log(records);
+    // Update spinner on success
+    parsingSpinner.succeed(
+      chalk.green(
+        `Successfully parsed ${records.length} bike records from CSV`,
+      ),
+    );
+
+    // Start seeding spinner
+    const seedingSpinner = ora({
+      text: chalk.cyan("Seeding database with bike data..."),
+      color: "cyan",
+    }).start();
+
     await db.insert(bikes).values(records);
-    console.log("Successfully seeded bikes table");
+
+    // Update spinner on success
+    seedingSpinner.succeed(
+      chalk.green(`Successfully seeded ${records.length} bikes into database`),
+    );
+
+    // Final success message
+    console.log(
+      chalk.bold.green("\n✅ Database seeding completed successfully!\n"),
+    );
+
+    process.exit(0);
   } catch (error: unknown) {
+    console.log("\n");
     console.error(
-      "Error seeding bikes:",
-      error instanceof Error ? error.message : String(error),
+      chalk.bold.red("❌ Error seeding bikes:"),
+      chalk.red(error instanceof Error ? error.message : String(error)),
     );
     process.exit(1);
   }
 }
 
 main().catch((error: unknown) => {
-  console.error(error instanceof Error ? error.message : String(error));
+  console.error(
+    chalk.bold.red("❌ Unexpected error:"),
+    chalk.red(error instanceof Error ? error.message : String(error)),
+  );
   process.exit(1);
 });
 
@@ -47,15 +85,19 @@ async function parseCSV(): Promise<Bike[]> {
   const __dirname = path.dirname(__filename);
   const csvFilePath = join(__dirname, "bikes.csv");
 
-  const records: Bike[] = [];
+  return new Promise((resolve, reject) => {
+    const records: Bike[] = [];
 
-  createReadStream(csvFilePath)
-    .pipe(parse({ headers: true }))
-    .on("data", (row) => {
-      records.push(row as Bike);
-    })
-    .on("end", () => {
-      return records;
-    });
-  return records;
+    createReadStream(csvFilePath)
+      .pipe(parse({ headers: true }))
+      .on("data", (row) => {
+        records.push(row as Bike);
+      })
+      .on("error", (error) => {
+        reject(error);
+      })
+      .on("end", () => {
+        resolve(records);
+      });
+  });
 }
