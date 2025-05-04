@@ -13,8 +13,9 @@ export async function userLogin(
 ): Promise<{ error: AuthError } | { error: "CredentialsSignin" }> {
   try {
     const callbackUrlValue = formData.get("callbackUrl");
-    const callbackUrl = typeof callbackUrlValue === "string" ? callbackUrlValue : "/";
-    
+    const callbackUrl =
+      typeof callbackUrlValue === "string" ? callbackUrlValue : "/";
+
     return await signIn("credentials", {
       ...Object.fromEntries(formData),
       redirect: true,

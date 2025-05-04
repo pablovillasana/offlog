@@ -33,7 +33,7 @@ const data = {
       isActive: true,
     },
     {
-      title: "Vehicles",
+      title: "My Bikes",
       url: "/vehicles",
       icon: Bike,
     },

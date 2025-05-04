@@ -4,7 +4,8 @@ import Image from "next/image";
 import { useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { LoaderCircle } from "lucide-react";
-import { useState, FormEvent } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";

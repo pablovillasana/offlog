@@ -6,7 +6,6 @@ import { getUserIfSatisfies } from "~/server/api/users";
 import type { userCredentials } from "~/utils/types";
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
-  debug: true,
   providers: [
     Credentials({
       credentials: {
